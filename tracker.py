@@ -12,8 +12,8 @@ from selenium import webdriver
 
 base = os.path.dirname(os.path.realpath(__file__))
 load_dotenv(os.path.join(base, '.env'))
-USERNAME = os.environ.get("USERNAME")
-PASSWORD = os.environ.get("PASSWORD")
+USERNAME = os.environ.get("DG_USERNAME")
+PASSWORD = os.environ.get("DG_PASSWORD")
 
 if os.name == 'posix':
     DRIVER_PATH = "drivers/chromedriver"
