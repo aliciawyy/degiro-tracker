@@ -4,31 +4,30 @@ from time import sleep, time
 import logging
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
-from requests import Session
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 from selenium import webdriver
 
-
-class DegiroAPI(object):
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
-
-    def login(self):
-        self.session = Session()
-
-
 base = os.path.dirname(os.path.realpath(__file__))
 load_dotenv(os.path.join(base, '.env'))
 USERNAME = os.environ.get("USERNAME")
 PASSWORD = os.environ.get("PASSWORD")
 
+if os.name == 'posix':
+    DRIVER_PATH = "drivers/chromedriver"
+elif os.name == 'nt':
+    DRIVER_PATH = 'drivers/chromedriver.exe'
+
+else:
+    logging.error("No chromedriver found for OS")
+    exit(1)
+
 options = webdriver.ChromeOptions()
 # options.add_argument('headless')
-driver = webdriver.Chrome(os.path.join(base, 'chromedriver'), chrome_options=options)
+
+driver = webdriver.Chrome(os.path.join(base, DRIVER_PATH), chrome_options=options)
 driver.get("https://trader.degiro.nl/login/uk?#/login")
 username = WebDriverWait(driver, 20).until(expected_conditions.presence_of_element_located((By.ID, 'username')))
 password = WebDriverWait(driver, 20).until(expected_conditions.presence_of_element_located((By.ID, 'password')))
