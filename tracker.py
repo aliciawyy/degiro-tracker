@@ -19,7 +19,6 @@ if os.name == 'posix':
     DRIVER_PATH = "drivers/chromedriver"
 elif os.name == 'nt':
     DRIVER_PATH = 'drivers/chromedriver.exe'
-
 else:
     logging.error("No chromedriver found for OS")
     exit(1)
