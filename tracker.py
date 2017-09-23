@@ -1,4 +1,5 @@
 import os
+from threading import Thread
 from time import sleep, time
 
 import logging
@@ -9,11 +10,59 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 from selenium import webdriver
+import sqlite3
+
+conn = sqlite3.connect('data.db', check_same_thread=False)
+
+CREATE_TABLE_QUERY = '''
+CREATE TABLE prices (
+    isn       REAL,
+    bid       TEXT,
+    ask       REAL,
+    cul_vol   TEXT,
+    timestamp DATETIME,
+
+)'''
+
+c = conn.cursor()
+c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='prices'")
+
+if not len(c.fetchall()) == 1:
+    c.execute(CREATE_TABLE_QUERY)
 
 base = os.path.dirname(os.path.realpath(__file__))
 load_dotenv(os.path.join(base, '.env'))
 USERNAME = os.environ.get("DG_USERNAME")
 PASSWORD = os.environ.get("DG_PASSWORD")
+
+INSERT_QUERY = '''
+INSERT INTO prices (
+       cul_vol,
+       isn,
+       ask,
+       bid,
+       timestamp
+   )
+   VALUES (
+       {cul_vol},
+       '{isn}',
+       {ask},
+       {bid},
+       {timestamp}
+    );
+
+'''
+
+
+def insert_worker(connection, **kwargs):
+    while True:
+        try:
+            connection.execute(INSERT_QUERY.format(**kwargs))
+            return True
+        except Exception as e:
+            print(e)
+            pass
+
 
 if os.name == 'posix':
     DRIVER_PATH = "drivers/chromedriver"
@@ -53,15 +102,34 @@ while True:
         soup = BeautifulSoup(page)
         stock_contents = soup.find_all(name='tr', attrs={"data-loop-item": "product"})
         for content in stock_contents:
-            bid_price = content.find(name="span", attrs={"data-dg-watch-property": "BidPrice"}).text
-            sell_price = content.find(name="span", attrs={"data-dg-watch-property": "AskPrice"}).text
-            volume = content.find(name="span", attrs={"data-dg-watch-property": "CumulativeVolume"}).text
+
+            bid = content.find(name="span", attrs={"data-dg-watch-property": "BidPrice"}).text
+            ask = content.find(name="span", attrs={"data-dg-watch-property": "AskPrice"}).text
+            cul_vol = content.find(name="span", attrs={"data-dg-watch-property": "CumulativeVolume"}).text
             isn = content.find(name="td", attrs={"data-dg-product-symbol-isin": "product"}).text
             timestamp = time()
-            row = "{}\t{}\t{}\t{}\t{}\n".format(bid_price, sell_price, volume, isn, timestamp)
-            print(row)
-            with open("data.csv", "a") as f:
-                f.write(row)
+
+            try:
+                bid = float(bid)
+                ask = float(ask)
+            except:
+                continue
+
+            try:
+                cul_vol = float(cul_vol.strip(","))
+            except:
+                cul_vol = 0.0
+
+            insert_worker(conn,
+                          bid=bid,
+                          ask=ask,
+                          cul_vol=cul_vol,
+                          isn=isn,
+                          timestamp=timestamp)
+
+            conn.commit()
+
+            sleep(1)
 
         try:
             next_page = driver.find_element_by_class_name('table-pagination-item ng-scope')
@@ -69,5 +137,3 @@ while True:
             next_page.click()
         except NoSuchElementException:
             last_page = True
-
-    sleep(1)
