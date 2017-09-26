@@ -20,7 +20,7 @@ CREATE TABLE prices (
     bid       TEXT,
     ask       REAL,
     cul_vol   TEXT,
-    timestamp DATETIME,
+    timestamp DATETIME
 
 )'''
 
