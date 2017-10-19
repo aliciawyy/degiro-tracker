@@ -1,0 +1,1 @@
+[![Build Status](https://travis-ci.org/aliciawyy/degiro-tracker.svg?branch=master)](https://travis-ci.org/aliciawyy/degiro-tracker)

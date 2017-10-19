@@ -1,0 +1,13 @@
+language: python
+
+python:
+  - "2.7"
+  - "3.5"
+
+install:
+  - pip install -U pip
+  - pip install -r requirements.txt
+
+script:
+  - nosetests . --with-coverage --cover-package=degiro --cover-html --cover-erase
+
