@@ -1,2 +1,9 @@
 # Created by .ignore support plugin (hsz.mobi)
 /.env
+.idea
+__pycache__
+*~
+*.pyc
+.i
+
+.ipynb_checkpoints/
