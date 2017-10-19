@@ -1,1 +1,2 @@
 [![Build Status](https://travis-ci.org/aliciawyy/degiro-tracker.svg?branch=master)](https://travis-ci.org/aliciawyy/degiro-tracker)
+[![Maintainability](https://api.codeclimate.com/v1/badges/bc9096430ea33aca04df/maintainability)](https://codeclimate.com/github/aliciawyy/degiro-tracker/maintainability)
