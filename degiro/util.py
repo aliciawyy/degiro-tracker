@@ -24,11 +24,10 @@ class DgAccount(object):
     def login(self, driver):
         driver.get(self.url_login)
         for tag, v in [("username", self.user), ("password", self._pwd)]:
-            field = WebDriverWait(driver, 20).until(
-                expected_conditions.presence_of_element_located(
-                    (By.ID, tag)
-                )
+            field_appear = expected_conditions.presence_of_element_located(
+                (By.ID, tag)
             )
+            field = WebDriverWait(driver, 20).until(field_appear)
             field.send_keys(v)
         time.sleep(2)
         driver.find_element_by_name('loginButtonUniversal').click()
